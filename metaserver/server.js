@@ -100,11 +100,12 @@ wss.on('connection', function(connection) {
 				
             if(conn != null) { 
                //setting that UserA connected with UserB 
-               connection.otherName = data.name; 
-					console.log(">>>>>>>>>>>>>>>>>>>>>"+data.name);
+               connection.otherName = data.sender; 
+				
                sendTo(conn, { 
                   type: "offer", 
                   offer: data.offer, 
+				  sender: data.sender,
                   name: connection.name 
                }); 
             } 
@@ -117,12 +118,12 @@ wss.on('connection', function(connection) {
             break;
 				
          case "answer": 
-            console.log("Sending answer to: ", data.name); 
+            console.log("Sending answer to: ", data.receiver); 
             //for ex. UserB answers UserA 
-             var conn = users[data.name]["conn"]; 
+             var conn = users[data.sender]["conn"]; 
 				
             if(conn != null) { 
-               connection.otherName = data.name; 
+               connection.otherName = data.receiver; 
                sendTo(conn, { 
                   type: "answer", 
                   answer: data.answer 
