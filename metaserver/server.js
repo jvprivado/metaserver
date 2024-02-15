@@ -37,7 +37,7 @@ wss.on('connection', function(connection) {
 					
 					name: data.name,
 					stats: data.stats
-               });
+               },data.name);
 			   
 			   break;
 		  
@@ -93,8 +93,8 @@ wss.on('connection', function(connection) {
          case "offer": 
             //for ex. UserA wants to call UserB 
             console.log("Sending offer to: ", data.name); 
-				console.log(users);
-				console.log(users[data.name]);
+			
+				try{
             //if UserB exists then send him offer details 
             var conn = users[data.name]["conn"]; 
 				
@@ -108,6 +108,11 @@ wss.on('connection', function(connection) {
                   name: connection.name 
                }); 
             } 
+			
+				}
+				catch{
+					
+				}
 				
             break;
 				
@@ -205,5 +210,9 @@ function sendToAll(msg,sender){
 
 
 function sendTo(connection, message) { 
-   connection.send(JSON.stringify(message)); 
+   
+   try{connection.send(JSON.stringify(message)); 
+   }
+   catch{
+   }
 }
