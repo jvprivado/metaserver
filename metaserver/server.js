@@ -1,13 +1,35 @@
 
+var createServer = require('https').createServer;
+var readFileSync = require('fs').readFileSync;
+const server = createServer({
+  cert: readFileSync('./cert.pem'),
+  key: readFileSync('./key.pem')
+});
+
+//require our websocket library
+var WebSocketServer = require('ws').Server;
+
+//creating a websocket server at port 9090
+var wss = new WebSocketServer({server});
+
+
 
 //require our websocket library 
-var WebSocketServer = require('ws').Server; 
+//var WebSocketServer = require('ws').Server; 
 
 //creating a websocket server at port 9090 
-var wss = new WebSocketServer({port: 9090}); 
+//var wss = new WebSocketServer({port: 9090}); 
+
+
+
+
 
 //all connected to the server users 
 var users = {};
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
 
 //when a user connects to our sever 
 wss.on('connection', function(connection) {
@@ -40,6 +62,70 @@ wss.on('connection', function(connection) {
                },data.name);
 			   
 			   break;
+			   
+			   
+			    case "nearest": 
+			//	console.log(data.name +" WANTS TO TAL WITH "+data.targetplayer);
+				
+				try{
+				  if(users[data.name].nearest==""){
+					  users[data.name].nearest =  data.targetplayer;
+					    users[data.targetplayer].isInitiator=-1;
+				  }
+				  
+				  else{
+					  users[data.name].nearest =  data.targetplayer;
+					 
+				  }
+				  
+				  
+				  if(users[data.name].nearest==data.targetplayer && users[data.targetplayer].nearest==data.name && users[data.name].isInitiator==-1 && users[data.targetplayer].isInitiator==-1){
+					  
+					 var rno =  getRandomInt(2);
+					 var snt = "ddddddddd";
+					 if  (rno==0){
+						 users[data.name].isInitiator= 1;
+						 users[data.targetplayer].isInitiator= 0;
+						  sendTo(connection, { 
+                  type: "isInitiator", 
+                 
+               }); 
+			     var conn = users[data.targetplayer]["conn"]; 
+					   	  sendTo(conn, { 
+                  type: "notInitiator", 
+                 
+						}); 
+						
+						snt = "INITIATOR "+data.name+" TARGET "+data.targetplayer;
+					 }
+					 
+					 else{
+						  
+						  users[data.targetplayer].isInitiator= 1;
+						   users[data.name].isInitiator= 0;
+						  sendTo(connection, { 
+                  type: "notInitiator", 
+                 
+               }); 
+			     var conn = users[data.targetplayer]["conn"]; 
+					   	  sendTo(conn, { 
+                  type: "isInitiator", 
+                 
+						}); 
+					 	snt = "INITIATOR "+data.targetplayer+" TARGET "+data.name;
+					 }
+					 
+					console.log(snt);
+				  }
+				  
+				}
+				
+				catch(ee){
+					// console.log(ee);
+				  }
+		
+				  
+				break;
 		  
          case "login": 
             console.log("User logged", data.name); 
@@ -54,7 +140,7 @@ wss.on('connection', function(connection) {
 			
 			else { 
                //save user connection on the server 
-               users[data.name]= {conn: connection,model:data.model}; 
+               users[data.name]= {conn: connection,model:data.model, nearest:"", isInitiator:-1}; 
 
                connection.name = data.name;
 					
