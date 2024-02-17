@@ -286,7 +286,7 @@ wss.on('connection', function(connection) {
   // connection.send("Hello world"); 
 }); 
 
-
+server.listen(9090);
 function sendToAll(msg,sender){
 
 	for (var key in users) {
